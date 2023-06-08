@@ -1,5 +1,7 @@
 #!/bin/bash
-pip install protobuf==3.20.0
+
+pip install --upgrade protobuf
+
 
 # Mettre à jour pip
 /opt/render/project/src/.venv/bin/python -m pip install --upgrade pip
