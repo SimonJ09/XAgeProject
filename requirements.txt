@@ -4,3 +4,6 @@ numpy
 matplotlib
 joblib
 opencv-python
+scikit-learn
+Pillow
+
