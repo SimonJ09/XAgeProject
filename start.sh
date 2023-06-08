@@ -10,4 +10,4 @@ pip install --upgrade protobuf
 /opt/render/project/src/.venv/bin/python -m pip install streamlit pandas tensorflow numpy opencv-python
 
 # Exécuter l'application Streamlit
-/opt/render/project/src/.venv/bin/streamlit run script.py
+/opt/render/project/src/.venv/bin/streamlit run script1.py
