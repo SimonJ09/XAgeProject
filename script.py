@@ -1,65 +1,59 @@
 import streamlit as st
-import cv2
+import tensorflow as tf
 import numpy as np
-from tensorflow.keras.models import load_model
+import matplotlib.pyplot as plt
 
-# Chargement du modèle pré-entraîné
-model = load_model('model.h5')
+# Load the model
+best_model = tf.keras.models.load_model('Model.h5')
 
-# Définition des classes
-gender_classes = ['Male', 'Female']
-race_classes = ['White', 'Black', 'Asian', 'Indian', 'Others']
-age_classes = list(range(0, 117))
+# Define the labels for gender and race
+gender_labels = ['Male', 'Female']
+race_labels = ['White', 'Black', 'Asian', 'Indian', 'Others']
 
-# Fonction de prétraitement de l'image
-def preprocess_image(image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = cv2.resize(image, (48, 48))
-    image = image / 255.0
-    return image
-
-# Fonction de prédiction
+# Function to make predictions
 def predict(image):
-    # Prétraitement de l'image
-    processed_image = preprocess_image(image)
-
-    # Ajouter une dimension supplémentaire pour l'entrée du modèle
+    # Preprocess the image
+    # Add your image preprocessing steps here
+    processed_image = preprocess_image(image)  # Replace 'preprocess_image' with your actual preprocessing function
+    
+    # Reshape the image
     processed_image = np.expand_dims(processed_image, axis=0)
+    
+    # Make predictions
+    predictions = best_model.predict(processed_image)
+    
+    # Get the gender, age, and race predictions
+    gender_predictions = np.argmax(predictions[0], axis=1)
+    age_predictions = predictions[1].flatten().astype(int)
+    race_predictions = np.argmax(predictions[2], axis=1)
+    
+    # Get the predicted gender, age, and race
+    gender = gender_labels[gender_predictions[0]]
+    age = age_predictions[0]
+    race = race_labels[race_predictions[0]]
+    
+    return gender, age, race
 
-    # Prédiction avec le modèle chargé
-    gender_prob, race_prob, age_prob = model.predict(processed_image)
+# Streamlit app
+def main():
+    st.title("Image Prediction")
+    st.write("Upload an image and get gender, age, and race predictions.")
 
-    # Obtenir les indices des classes prédites
-    gender_index = np.argmax(gender_prob)
-    race_index = np.argmax(race_prob)
-    age_index = np.argmax(age_prob)
+    # File uploader
+    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_file is not None:
+        # Display the uploaded image
+        image = plt.imread(uploaded_file)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
+        
+        # Make predictions
+        gender, age, race = predict(image)
+        
+        # Display the predictions
+        st.write(f"Gender: {gender}")
+        st.write(f"Age: {age}")
+        st.write(f"Race: {race}")
 
-    # Obtenir les prédictions réelles
-    gender_prediction = gender_classes[gender_index]
-    race_prediction = race_classes[race_index]
-    age_prediction = age_classes[age_index]
-
-    return gender_prediction, race_prediction, age_prediction
-
-# Interface utilisateur Streamlit
-st.title("Prédiction d'âge, de sexe et de race à partir d'une photo")
-st.write("Veuillez charger une photo pour obtenir les prédictions.")
-
-# Chargement de l'image
-uploaded_image = st.file_uploader("Sélectionnez une image", type=['jpg', 'jpeg', 'png'])
-
-if uploaded_image is not None:
-    # Lecture de l'image
-    image = cv2.imdecode(np.fromstring(uploaded_image.read(), np.uint8), 1)
-
-    # Affichage de l'image
-    st.image(image, channels="RGB")
-
-    # Prédiction
-    gender, race, age = predict(image)
-
-    # Affichage des prédictions
-    st.write("Prédictions :")
-    st.write("Sexe :", gender)
-    st.write("Race :", race)
-    st.write("Âge :", age)
+if __name__ == "__main__":
+    main()
