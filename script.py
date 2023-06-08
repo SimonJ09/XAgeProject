@@ -1,56 +1,58 @@
+# Importer les bibliothèques nécessaires
+
 import streamlit as st
 import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
+from tensorflow.keras.applications.resnet50 import preprocess_input
 
-# Load the model
+# Charger le modèle
 best_model = tf.keras.models.load_model('Model.h5')
 
-# Define the labels for gender and race
+# Définir les étiquettes pour le genre et la race
 gender_labels = ['Male', 'Female']
 race_labels = ['White', 'Black', 'Asian', 'Indian', 'Others']
 
-# Function to make predictions
+# Fonction pour effectuer les prédictions
 def predict(image):
-    # Preprocess the image
-    # Add your image preprocessing steps here
-    processed_image = preprocess_image(image)  # Replace 'preprocess_image' with your actual preprocessing function
+    # Prétraiter l'image
+    processed_image = preprocess_input(image)
     
-    # Reshape the image
+    # Remodeler l'image
     processed_image = np.expand_dims(processed_image, axis=0)
     
-    # Make predictions
+    # Effectuer les prédictions
     predictions = best_model.predict(processed_image)
     
-    # Get the gender, age, and race predictions
+    # Récupérer les prédictions de genre, d'âge et de race
     gender_predictions = np.argmax(predictions[0], axis=1)
     age_predictions = predictions[1].flatten().astype(int)
     race_predictions = np.argmax(predictions[2], axis=1)
     
-    # Get the predicted gender, age, and race
+    # Récupérer le genre, l'âge et la race prédits
     gender = gender_labels[gender_predictions[0]]
     age = age_predictions[0]
     race = race_labels[race_predictions[0]]
     
     return gender, age, race
 
-# Streamlit app
+# Application Streamlit
 def main():
     st.title("Image Prediction")
     st.write("Upload an image and get gender, age, and race predictions.")
 
-    # File uploader
+    # Uploader de fichier
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
     
     if uploaded_file is not None:
-        # Display the uploaded image
+        # Afficher l'image téléchargée
         image = plt.imread(uploaded_file)
         st.image(image, caption='Uploaded Image', use_column_width=True)
         
-        # Make predictions
+        # Effectuer les prédictions
         gender, age, race = predict(image)
         
-        # Display the predictions
+        # Afficher les prédictions
         st.write(f"Gender: {gender}")
         st.write(f"Age: {age}")
         st.write(f"Race: {race}")
