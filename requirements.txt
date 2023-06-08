@@ -1,6 +1,7 @@
-python
+keras
 streamlit
 pandas
 tensorflow
-numpy
+matplotlib
 opencv-python
+numpy
