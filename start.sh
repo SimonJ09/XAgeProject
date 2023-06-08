@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Mettre à jour pip
 /opt/render/project/src/.venv/bin/python -m pip install --upgrade pip
 
-streamlit run script.py 
+# Installer les dépendances
+/opt/render/project/src/.venv/bin/python -m pip install streamlit pandas tensorflow numpy opencv-python
+
+# Exécuter l'application Streamlit
+/opt/render/project/src/.venv/bin/streamlit run script.py
